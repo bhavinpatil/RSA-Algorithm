@@ -1,4 +1,7 @@
 #include <bits/stdc++.h>
+#include <boost/multiprecision/cpp_int.hpp>
+
+using boost::multiprecision::cpp_int;
 using namespace std;
 
 // class for RSA_CRYPTOSYSTEM
@@ -11,6 +14,10 @@ public:
     unsigned phi_num; //(p-1)*(q-1) = Φ(n)
     unsigned pub_e;   // 1 < e < phi_n and gcd(e,phi_n) = 1 (public_key)
     unsigned pri_d;   // e*d mod phi_n = 1 (private_key)
+    unsigned message; // secret message (plain_text)
+
+    boost::multiprecision::cpp_int plain_text;
+    boost::multiprecision::cpp_int cipher_text;
 
     void start();
     void check_valid_prime();
@@ -21,10 +28,12 @@ public:
     unsigned d(unsigned encry);
     unsigned e(unsigned decry);
 
-
     void calculate_both();
     void calculate_private();
     void calculate_public();
+
+    boost::multiprecision::cpp_int encrypt(unsigned message);
+    boost::multiprecision::cpp_int decrypt();
 };
 
 // Enter the prime Numbers:
@@ -99,8 +108,6 @@ unsigned RSA_CRYPTOSYSTEM::e(unsigned decry)
     return pub_e;
 }
 
-
-
 // calculating the value for Private Key i.e. 'd':
 unsigned RSA_CRYPTOSYSTEM::d()
 {
@@ -120,6 +127,21 @@ unsigned RSA_CRYPTOSYSTEM::d(unsigned encry)
     return pri_d;
 }
 
+// Encryption:
+boost::multiprecision::cpp_int RSA_CRYPTOSYSTEM::encrypt(unsigned message)
+{
+    cipher_text = (boost::multiprecision::cpp_int(boost::multiprecision::pow(boost::multiprecision::cpp_int(message), pub_e))) % num;
+    return cipher_text;
+}
+
+// Decryption:
+boost::multiprecision::cpp_int RSA_CRYPTOSYSTEM::decrypt()
+{
+    plain_text = (boost::multiprecision::cpp_int(boost::multiprecision::pow(boost::multiprecision::cpp_int(cipher_text), pri_d))) % num;
+    return plain_text;
+}
+
+// Operations:
 void RSA_CRYPTOSYSTEM::calculate_both()
 {
     start();
@@ -128,6 +150,10 @@ void RSA_CRYPTOSYSTEM::calculate_both()
     cout << "Value of Φ(n): " << phi_n() << endl;
     cout << "Value of e(Public Key): " << e() << endl;
     cout << "Value of d(Private Key): " << d() << endl;
+    cout << "Enter Message which you want to Encrypt:" << endl;
+    cin >> message;
+    cout << "Encrypted Message: " << encrypt(message) << endl;
+    cout << "Decrypted Message: " << decrypt() << endl;
 }
 
 void RSA_CRYPTOSYSTEM::calculate_private()
@@ -135,10 +161,14 @@ void RSA_CRYPTOSYSTEM::calculate_private()
     unsigned encry;
     start();
     check_valid_prime();
+    cout << "Value of N: " << n() << endl;
     cout << "Value of Φ(n): " << phi_n() << endl;
     cout << "Enter Public Key: " << endl;
-    cin >> encry;
-    cout << "Value of d(Private Key): " << d(encry) << endl;
+    cin >> pub_e;
+    cout << "Value of d(Private Key): " << d(pub_e) << endl;
+    cout << "Enter Message which you want to Encrypt:" << endl;
+    cin >> message;
+    cout << "Encrypted Message: " << encrypt(message) << endl;
 }
 
 void RSA_CRYPTOSYSTEM::calculate_public()
@@ -146,10 +176,14 @@ void RSA_CRYPTOSYSTEM::calculate_public()
     unsigned decry;
     start();
     check_valid_prime();
+    cout << "Value of N: " << n() << endl;
     cout << "Value of Φ(n): " << phi_n() << endl;
     cout << "Enter Private Key: " << endl;
-    cin >> decry;
-    cout << "Value of e(Public Key): " << e(decry) << endl;
+    cin >> pri_d;
+    cout << "Value of e(Public Key): " << e(pri_d) << endl;
+    cout << "Enter Message which you want to Decrypt:" << endl;
+    cin >> cipher_text;
+    cout << "Decrypted Message: " << decrypt() << endl;
 }
 
 // main funtoin:
